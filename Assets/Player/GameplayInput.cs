@@ -35,6 +35,15 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""TurnCamera"",
+                    ""type"": ""Value"",
+                    ""id"": ""70a33b50-6611-4914-9f29-a0804f683ff1"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -92,6 +101,17 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
                     ""action"": ""RollDirection"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c7d365ad-343e-4f98-9735-9cdd9a766864"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TurnCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -118,6 +138,7 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
         // Rolling
         m_Rolling = asset.FindActionMap("Rolling", throwIfNotFound: true);
         m_Rolling_RollDirection = m_Rolling.FindAction("RollDirection", throwIfNotFound: true);
+        m_Rolling_TurnCamera = m_Rolling.FindAction("TurnCamera", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -178,11 +199,13 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Rolling;
     private IRollingActions m_RollingActionsCallbackInterface;
     private readonly InputAction m_Rolling_RollDirection;
+    private readonly InputAction m_Rolling_TurnCamera;
     public struct RollingActions
     {
         private @GameplayInput m_Wrapper;
         public RollingActions(@GameplayInput wrapper) { m_Wrapper = wrapper; }
         public InputAction @RollDirection => m_Wrapper.m_Rolling_RollDirection;
+        public InputAction @TurnCamera => m_Wrapper.m_Rolling_TurnCamera;
         public InputActionMap Get() { return m_Wrapper.m_Rolling; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -195,6 +218,9 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
                 @RollDirection.started -= m_Wrapper.m_RollingActionsCallbackInterface.OnRollDirection;
                 @RollDirection.performed -= m_Wrapper.m_RollingActionsCallbackInterface.OnRollDirection;
                 @RollDirection.canceled -= m_Wrapper.m_RollingActionsCallbackInterface.OnRollDirection;
+                @TurnCamera.started -= m_Wrapper.m_RollingActionsCallbackInterface.OnTurnCamera;
+                @TurnCamera.performed -= m_Wrapper.m_RollingActionsCallbackInterface.OnTurnCamera;
+                @TurnCamera.canceled -= m_Wrapper.m_RollingActionsCallbackInterface.OnTurnCamera;
             }
             m_Wrapper.m_RollingActionsCallbackInterface = instance;
             if (instance != null)
@@ -202,6 +228,9 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
                 @RollDirection.started += instance.OnRollDirection;
                 @RollDirection.performed += instance.OnRollDirection;
                 @RollDirection.canceled += instance.OnRollDirection;
+                @TurnCamera.started += instance.OnTurnCamera;
+                @TurnCamera.performed += instance.OnTurnCamera;
+                @TurnCamera.canceled += instance.OnTurnCamera;
             }
         }
     }
@@ -218,5 +247,6 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
     public interface IRollingActions
     {
         void OnRollDirection(InputAction.CallbackContext context);
+        void OnTurnCamera(InputAction.CallbackContext context);
     }
 }

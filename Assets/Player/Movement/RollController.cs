@@ -12,18 +12,25 @@ public class RollController : MonoBehaviour
 
     private SphereCollider cached_SphereCollider;
     private SphereCollider SphereCollider => cached_SphereCollider ??= GetComponent<SphereCollider>();
-    private Vector2 MovementInput = new(0, 0);
+    private Vector2 RawMovementInput = new(0, 0);
 
-    private float speed = 30f;
+    [SerializeField] private Transform cameraTransform;
+    private Vector3 WorldMovementDirection => Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0) * RawMovementInput._x0y();
+
+    public float Acceleration = 15f;
+    public float Decceleration = 5f;
+    public float AirAcceleration = .1f;
+
+    [SerializeField] private float speed = 15f;
 
     void Start()
     {
-        RollingInputEvents.OnRollDirectionChanged += dir => MovementInput = dir;
+        RollingInputEvents.OnRollDirectionChanged += dir => RawMovementInput = dir;
     }
 
     void Destroy()
     {
-        RollingInputEvents.OnRollDirectionChanged -= dir => MovementInput = dir;
+        RollingInputEvents.OnRollDirectionChanged -= dir => RawMovementInput = dir;
     }
 
     void FixedUpdate()
@@ -36,9 +43,16 @@ public class RollController : MonoBehaviour
 
     private void DoGroundedMovement()
     {
+        Debug.Log(WorldMovementDirection);
+        //Decellerate movement that doesnt go towards current WorldMovementDirection
+        RB.velocity -= Vector3.Scale(RB.velocity.normalized, new(1 - Mathf.Abs(WorldMovementDirection.x), 0, 1 - Mathf.Abs(WorldMovementDirection.z))) * Mathf.Min(RB.velocity.magnitude, speed) * Decceleration * Time.fixedDeltaTime;        
+
         var rotation = Quaternion.FromToRotation(Vector3.up, CI.ContactNormal);
-        var groundPlaneMovement = rotation * MovementInput._x0y() * speed;
-        RB.velocity = groundPlaneMovement;
+        var groundPlaneMovement = rotation * WorldMovementDirection * speed;
+        var velocityInMovementDir = Vector3.Dot(RB.velocity, groundPlaneMovement) / speed;
+        RB.velocity += groundPlaneMovement * ((speed - velocityInMovementDir) / speed) * Acceleration * Time.fixedDeltaTime;
+        RB.velocity = Vector3.ClampMagnitude(RB.velocity, speed);
+
     }
 
     private void DoSlopeMovement()
@@ -48,12 +62,13 @@ public class RollController : MonoBehaviour
         if (slopeDownVector.y > 0) slopeDownVector = -slopeDownVector;
 
         var rotation = Quaternion.FromToRotation(Vector3.up, CI.ContactNormal);
-        var groundPlaneMovement = rotation * MovementInput._x0y() * speed;
+        var groundPlaneMovement = rotation * WorldMovementDirection * speed;
 
-        var velocityInMovementDir = Vector3.Dot(RB.velocity, groundPlaneMovement);
+        var velocityInMovementDir = Vector3.Dot(RB.velocity, groundPlaneMovement) / speed;
         var uphillFactor = Mathf.Max(0, Vector3.Dot(groundPlaneMovement.normalized, -slopeDownVector));
+
         Debug.Log(uphillFactor);
-        RB.velocity += groundPlaneMovement / Mathf.Max(1, velocityInMovementDir) * (1 - uphillFactor);
+        RB.velocity += groundPlaneMovement * AirAcceleration * ((speed - velocityInMovementDir) / speed) * (1 - uphillFactor);
         RB.velocity += slopeDownVector;
     }
 
