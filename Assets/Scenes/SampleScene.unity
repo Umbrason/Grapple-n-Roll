@@ -639,7 +639,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 963194228}
   Acceleration: 30
-  Decceleration: 5
+  Decceleration: 50
   AirAcceleration: 0.1
   speed: 15
 --- !u!54 &2091541232

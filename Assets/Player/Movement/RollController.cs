@@ -43,15 +43,19 @@ public class RollController : MonoBehaviour
 
     private void DoGroundedMovement()
     {
-        Debug.Log(WorldMovementDirection);
-        //Decellerate movement that doesnt go towards current WorldMovementDirection
-        RB.velocity -= Vector3.Scale(RB.velocity.normalized, new(1 - Mathf.Abs(WorldMovementDirection.x), 0, 1 - Mathf.Abs(WorldMovementDirection.z))) * Mathf.Min(RB.velocity.magnitude, speed) * Decceleration * Time.fixedDeltaTime;        
-
         var rotation = Quaternion.FromToRotation(Vector3.up, CI.ContactNormal);
-        var groundPlaneMovement = rotation * WorldMovementDirection * speed;
-        var velocityInMovementDir = Vector3.Dot(RB.velocity, groundPlaneMovement) / speed;
-        RB.velocity += groundPlaneMovement * ((speed - velocityInMovementDir) / speed) * Acceleration * Time.fixedDeltaTime;
-        RB.velocity = Vector3.ClampMagnitude(RB.velocity, speed);
+        var groundPlaneMovement = rotation * WorldMovementDirection;
+        var ForwardComponent = Mathf.Max(0, Vector3.Dot(RB.velocity, groundPlaneMovement)) * groundPlaneMovement;
+        var NonForwardComponent = RB.velocity - ForwardComponent;
+
+        //Accelerate movement towards groundPlaneMovement
+        ForwardComponent = Vector3.MoveTowards(ForwardComponent, groundPlaneMovement * speed, Acceleration * Time.fixedDeltaTime);
+
+        //Decellerate movement that doesnt go towards current groundPlaneMovement
+        NonForwardComponent = Vector3.MoveTowards(NonForwardComponent, Vector3.zero, Decceleration * Time.fixedDeltaTime);
+
+
+        RB.velocity = ForwardComponent + NonForwardComponent;
 
     }
 
