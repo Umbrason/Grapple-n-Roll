@@ -930,13 +930,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 963194228}
-  Acceleration: 30
-  Decceleration: 50
-  AirAcceleration: 15
-  AirDecceleration: 20
-  SlopeDownwardsAcceleration: 5
   speed: 15
-  slopeMaxSpeed: 25
+  slopeDownwardsSpeed: 1.6666
+  Acceleration: 2
+  Decceleration: 3.3333
+  AirAcceleration: 1
+  AirDecceleration: 1.3333
+  SlopeDownwardsAcceleration: 0.3333
 --- !u!54 &2091541232
 Rigidbody:
   m_ObjectHideFlags: 0
