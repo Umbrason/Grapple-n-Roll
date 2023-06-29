@@ -15,14 +15,16 @@ public class RollController : MonoBehaviour
     private Vector2 RawMovementInput = new(0, 0);
 
     [SerializeField] private Transform cameraTransform;
-    private Vector3 WorldMovementDirection => Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0) * RawMovementInput._x0y();
+    private Vector3 WorldMovementDirection => (Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0) * RawMovementInput._x0y()).normalized;
 
-    public float Acceleration = 30f;
-    public float Decceleration = 50f;
-    public float AirAcceleration = 10f;
-    public float AirDecceleration = 5f;
+    [SerializeField] private float Acceleration = 30f;
+    [SerializeField] private float Decceleration = 50f;
+    [SerializeField] private float AirAcceleration = 10f;
+    [SerializeField] private float AirDecceleration = 5f;
+    [SerializeField] private float SlopeDownwardsAcceleration = 5f;
 
     [SerializeField] private float speed = 15f;
+    [SerializeField] private float slopeMaxSpeed = 25f;
 
     void Start()
     {
@@ -50,7 +52,8 @@ public class RollController : MonoBehaviour
         var NonForwardComponent = RB.velocity - ForwardComponent;
 
         //Accelerate movement towards groundPlaneMovement
-        ForwardComponent = Vector3.MoveTowards(ForwardComponent, groundPlaneMovement * speed, Acceleration * Time.fixedDeltaTime);
+        if (ForwardComponent.sqrMagnitude < speed * speed)
+            ForwardComponent = Vector3.MoveTowards(ForwardComponent, groundPlaneMovement * speed, Acceleration * Time.fixedDeltaTime);
 
         //Decellerate movement that doesnt go towards current groundPlaneMovement
         NonForwardComponent = Vector3.MoveTowards(NonForwardComponent, Vector3.zero, Decceleration * Time.fixedDeltaTime);
@@ -68,13 +71,21 @@ public class RollController : MonoBehaviour
         var rotation = Quaternion.FromToRotation(Vector3.up, CI.ContactNormal);
         var groundPlaneMovement = rotation * WorldMovementDirection * speed;
 
-        var velocityInMovementDir = Vector3.Dot(RB.velocity, groundPlaneMovement) / speed;
-        var uphillFactor = Mathf.Max(0, Vector3.Dot(groundPlaneMovement.normalized, -slopeDownVector));
-       
-        
+        var DownhillComponent = Mathf.Max(0, Vector3.Dot(RB.velocity, slopeDownVector)) * slopeDownVector;
+        var ForwardComponent = Mathf.Max(0, Vector3.Dot(RB.velocity - DownhillComponent, groundPlaneMovement)) * groundPlaneMovement;
+        var NonForwardComponent = RB.velocity - DownhillComponent - ForwardComponent;
 
-        RB.velocity += groundPlaneMovement * AirAcceleration * ((speed - velocityInMovementDir) / speed) * (1 - uphillFactor);
-        RB.velocity += slopeDownVector;
+
+        var uphillFactor = Mathf.Max(0, Vector3.Dot(groundPlaneMovement.normalized, -slopeDownVector));
+        Debug.Log(uphillFactor);
+
+        DownhillComponent = Vector3.MoveTowards(DownhillComponent, slopeDownVector * slopeMaxSpeed, SlopeDownwardsAcceleration * Time.fixedDeltaTime);
+        //Accelerate movement towards groundPlaneMovement
+        ForwardComponent = Vector3.MoveTowards(ForwardComponent, groundPlaneMovement * speed * (1 - uphillFactor), AirAcceleration * Time.fixedDeltaTime);
+        //Decellerate movement that doesnt go towards current groundPlaneMovement
+        NonForwardComponent = Vector3.MoveTowards(NonForwardComponent, Vector3.zero, AirDecceleration * Time.fixedDeltaTime);
+
+        RB.velocity = ForwardComponent + NonForwardComponent + DownhillComponent;
     }
 
     private void DoAirborneMovement()

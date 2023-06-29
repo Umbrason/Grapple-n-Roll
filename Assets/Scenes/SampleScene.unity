@@ -932,9 +932,11 @@ MonoBehaviour:
   cameraTransform: {fileID: 963194228}
   Acceleration: 30
   Decceleration: 50
-  AirAcceleration: 10
-  AirDecceleration: 5
+  AirAcceleration: 15
+  AirDecceleration: 20
+  SlopeDownwardsAcceleration: 5
   speed: 15
+  slopeMaxSpeed: 25
 --- !u!54 &2091541232
 Rigidbody:
   m_ObjectHideFlags: 0
