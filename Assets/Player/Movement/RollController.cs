@@ -17,9 +17,10 @@ public class RollController : MonoBehaviour
     [SerializeField] private Transform cameraTransform;
     private Vector3 WorldMovementDirection => Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0) * RawMovementInput._x0y();
 
-    public float Acceleration = 15f;
-    public float Decceleration = 5f;
-    public float AirAcceleration = .1f;
+    public float Acceleration = 30f;
+    public float Decceleration = 50f;
+    public float AirAcceleration = 10f;
+    public float AirDecceleration = 5f;
 
     [SerializeField] private float speed = 15f;
 
@@ -54,7 +55,6 @@ public class RollController : MonoBehaviour
         //Decellerate movement that doesnt go towards current groundPlaneMovement
         NonForwardComponent = Vector3.MoveTowards(NonForwardComponent, Vector3.zero, Decceleration * Time.fixedDeltaTime);
 
-
         RB.velocity = ForwardComponent + NonForwardComponent;
 
     }
@@ -70,15 +70,26 @@ public class RollController : MonoBehaviour
 
         var velocityInMovementDir = Vector3.Dot(RB.velocity, groundPlaneMovement) / speed;
         var uphillFactor = Mathf.Max(0, Vector3.Dot(groundPlaneMovement.normalized, -slopeDownVector));
+       
+        
 
-        Debug.Log(uphillFactor);
         RB.velocity += groundPlaneMovement * AirAcceleration * ((speed - velocityInMovementDir) / speed) * (1 - uphillFactor);
         RB.velocity += slopeDownVector;
     }
 
     private void DoAirborneMovement()
     {
-        Debug.Log("airborne");
+        Debug.Log("Airborne");
+        var ForwardComponent = Mathf.Max(0, Vector3.Dot(RB.velocity, WorldMovementDirection)) * WorldMovementDirection;
+        var NonForwardComponent = RB.velocity - ForwardComponent;
+
+        //Accelerate movement towards groundPlaneMovement
+        ForwardComponent = Vector3.MoveTowards(ForwardComponent, WorldMovementDirection * speed, AirAcceleration * Time.fixedDeltaTime);
+
+        //Decellerate movement that doesnt go towards current groundPlaneMovement
+        NonForwardComponent = Vector3.MoveTowards(NonForwardComponent._x0z(), Vector3.zero, AirDecceleration * Time.fixedDeltaTime);
+
+        RB.velocity = ForwardComponent + NonForwardComponent + RB.velocity._0y0();
     }
 
     //for ariborne/slope movement:
