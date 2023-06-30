@@ -76,12 +76,12 @@ public class CollisionInfo : MonoBehaviour
 
     private bool IsGround(Collider c, Vector3 normal)
     {
-        return normal.y >= 0;
+        return normal.y >= .001;
     }
 
     private bool IsWall(Collider c, Vector3 normal)
     {
-        return normal.y < 0; //Mathf.Abs(Vector3.Dot(Vector3.up, normal)) <= DotThreshold;
+        return normal.y < 0.001; //Mathf.Abs(Vector3.Dot(Vector3.up, normal)) <= DotThreshold;
     }
 
     public Vector3 CollideXZVelocity(Vector3 velocity)

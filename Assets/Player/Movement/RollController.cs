@@ -21,7 +21,7 @@ public class RollController : MonoBehaviour
     private Vector3 WorldMovementDirection => (Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0) * RawMovementInput._x0y()).normalized;
 
     [Header("Base Speed"), Tooltip("The base speed of the ball")]
-    [SerializeField] private float speed = 15f;        
+    [SerializeField] private float speed = 15f;
 
     [Header("Grounded")]
     [SerializeField, Tooltip("Airborne decceleration, relative to base speed")] private float Acceleration = 2f;
@@ -34,7 +34,7 @@ public class RollController : MonoBehaviour
     [Header("Sliding")]
     [SerializeField, Tooltip("Sliding decceleration, relative to base speed")] private float SlopeAcceleration = 1;
     [SerializeField, Tooltip("Sliding decceleration, relative to base speed")] private float SlopeDecceleration = 1.3333f;
-    [SerializeField, Tooltip("Downhill acceleration, relative to base speed")] private float SlopeDownwardsAcceleration = .3333f;
+    [SerializeField, Tooltip("Downhill acceleration, relative to base speed")] private float SlopeDownwardsAcceleration = 1f;
     [SerializeField, Tooltip("Max downhill speed, relative to base speed")] private float slopeDownwardsSpeed = 1.6666f;
 
     [Header("Grappling")]
@@ -54,71 +54,67 @@ public class RollController : MonoBehaviour
     void FixedUpdate()
     {
         RB.useGravity = !CI.FlatGround;
-        if (CI.FlatGround) DoGroundedMovement();
-        else if (CI.Grounded) DoSlopeMovement();
-        else DoAirborneMovement();
+        /* if(CI.FlatGround) DoGroundedMovement();
+        else if(CI.Grounded) DoSlopeMovement();
+        else DoAirborneMovement(); */
+        DoMovemement(Grapple.Grappling ? speed * 1.5f : speed);
     }
 
-    private void DoGroundedMovement()
+    [SerializeField] private float MaxMomentumKeepingTurnAngle = 5f;
+    [SerializeField] private float MomentumKeepingTurnAngleFalloff = 10f;
+
+    void DoMovemement(float speed)
     {
-        var rotation = Quaternion.FromToRotation(Vector3.up, CI.ContactNormal);
-        var groundPlaneMovement = rotation * WorldMovementDirection;
-        var ForwardComponent = Mathf.Max(0, Vector3.Dot(RB.velocity, groundPlaneMovement)) * groundPlaneMovement;
-        var NonForwardComponent = RB.velocity - ForwardComponent;
+        var acceleration = CI.FlatGround ? Acceleration : CI.Grounded ? SlopeAcceleration : AirAcceleration;
+        var decceleration = CI.FlatGround ? Decceleration : CI.Grounded ? SlopeDecceleration : AirDecceleration;
+        var movementDirection = WorldMovementDirection;
 
-        //Accelerate movement towards groundPlaneMovement
-        if (ForwardComponent.sqrMagnitude < speed * speed)
-            ForwardComponent = Vector3.MoveTowards(ForwardComponent, groundPlaneMovement * speed, speed * Acceleration * Time.fixedDeltaTime);
+        var slopeDownVector = Vector3.zero;
+        var uphillFactor = 0f;
+        var DownhillComponent = Vector3.zero;
+        var movementPlaneNormal = Vector3.up;
+        if (CI.Grounded)
+        {
+            movementPlaneNormal = CI.ContactNormal;
+            var rot = Quaternion.FromToRotation(Vector3.up, CI.ContactNormal);
+            movementDirection = rot * movementDirection;
+            if (!CI.FlatGround)
+            {
+                var rotAxis = Vector3.Cross(Vector3.up, CI.ContactNormal);
+                slopeDownVector = Quaternion.AngleAxis(90f, rotAxis) * CI.ContactNormal;
+                if (slopeDownVector.y > 0) slopeDownVector = -slopeDownVector;
+                uphillFactor = Mathf.Max(0, Vector3.Dot(movementDirection.normalized, -slopeDownVector));
+                DownhillComponent = Mathf.Max(0, Vector3.Dot(RB.velocity, slopeDownVector)) * slopeDownVector;
+            }
+        }
 
-        //Decellerate movement that doesnt go towards current groundPlaneMovement
-        NonForwardComponent = Vector3.MoveTowards(NonForwardComponent, Vector3.zero, speed * Decceleration * Time.fixedDeltaTime);
+        var ForwardComponent = Mathf.Max(0, Vector3.Dot(RB.velocity - DownhillComponent, movementDirection)) * movementDirection;
 
-        RB.velocity = ForwardComponent + NonForwardComponent;
-
-    }
-
-    private void DoSlopeMovement()
-    {
-        var rotAxis = Vector3.Cross(Vector3.up, CI.ContactNormal);
-        var slopeDownVector = Quaternion.AngleAxis(90f, rotAxis) * CI.ContactNormal;
-        if (slopeDownVector.y > 0) slopeDownVector = -slopeDownVector;
-
-        var rotation = Quaternion.FromToRotation(Vector3.up, CI.ContactNormal);
-        var groundPlaneMovement = rotation * WorldMovementDirection * speed;
-
-        var DownhillComponent = Mathf.Max(0, Vector3.Dot(RB.velocity, slopeDownVector)) * slopeDownVector;
-        var ForwardComponent = Mathf.Max(0, Vector3.Dot(RB.velocity - DownhillComponent, groundPlaneMovement)) * groundPlaneMovement;
+        var movementPlaneSpeed = RB.velocity - Vector3.Dot(RB.velocity, movementPlaneNormal) * movementPlaneNormal;
         var NonForwardComponent = RB.velocity - DownhillComponent - ForwardComponent;
 
 
-        var uphillFactor = Mathf.Max(0, Vector3.Dot(groundPlaneMovement.normalized, -slopeDownVector));
+        var turnAngle = movementDirection.magnitude > 0 ? Vector3.Angle(movementDirection, movementPlaneSpeed) : float.MaxValue;
+        var anglePenalty = Mathf.Clamp(turnAngle - MaxMomentumKeepingTurnAngle, 0, MomentumKeepingTurnAngleFalloff) / MomentumKeepingTurnAngleFalloff;
+        var angleKeepLerpT = 1 - anglePenalty;
+        angleKeepLerpT *= angleKeepLerpT * angleKeepLerpT;
+        ForwardComponent = Vector3.Lerp(ForwardComponent, movementPlaneSpeed.magnitude * movementDirection - DownhillComponent, angleKeepLerpT);
+        NonForwardComponent = Vector3.Lerp(NonForwardComponent, RB.velocity - movementPlaneSpeed, angleKeepLerpT);
 
+
+        //Accelerate Downhill until SlopeDownwardsSpeed is reached, then deccelerate to maintain downhillspeed
         DownhillComponent = Vector3.MoveTowards(DownhillComponent, slopeDownVector * speed * slopeDownwardsSpeed, speed * slopeDownwardsSpeed * SlopeDownwardsAcceleration * Time.fixedDeltaTime);
-        //Accelerate movement towards groundPlaneMovement
-        if (ForwardComponent.sqrMagnitude < speed * speed * (1 - uphillFactor))
-            ForwardComponent = Vector3.MoveTowards(ForwardComponent, groundPlaneMovement * speed * (1 - uphillFactor), speed * SlopeAcceleration * Time.fixedDeltaTime);
-        //Decellerate movement that doesnt go towards current groundPlaneMovement
-        NonForwardComponent = Vector3.MoveTowards(NonForwardComponent, Vector3.zero, speed * SlopeDecceleration * Time.fixedDeltaTime);
 
-        RB.velocity = ForwardComponent + NonForwardComponent + DownhillComponent;
-    }
-
-    private void DoAirborneMovement()
-    {
-        var ForwardComponent = Mathf.Max(0, Vector3.Dot(RB.velocity, WorldMovementDirection)) * WorldMovementDirection;
-        var NonForwardComponent = RB.velocity - ForwardComponent;
-
-        //Accelerate movement towards groundPlaneMovement
+        //Accelerate movement towards MovementDirection or stay at higher movement
         if (ForwardComponent.sqrMagnitude < speed * speed)
-            ForwardComponent = Vector3.MoveTowards(ForwardComponent, WorldMovementDirection * speed, speed * AirAcceleration * Time.fixedDeltaTime);
+            ForwardComponent = Vector3.MoveTowards(ForwardComponent, movementDirection * speed, speed * acceleration * Time.fixedDeltaTime);
 
-        //Decellerate movement that doesnt go towards current groundPlaneMovement
-        if (!Grapple.Grappling)
-            NonForwardComponent = Vector3.MoveTowards(NonForwardComponent._x0z(), Vector3.zero, speed * AirDecceleration * Time.fixedDeltaTime);
+        //Decellerate movement that doesnt go towards current MovementDirection
+        NonForwardComponent = Vector3.MoveTowards(NonForwardComponent, Vector3.zero, speed * decceleration * Time.fixedDeltaTime);
 
-        RB.velocity = ForwardComponent + NonForwardComponent._x0z() + RB.velocity._0y0();
+        if (!CI.Grounded) RB.velocity = ForwardComponent + DownhillComponent + NonForwardComponent._x0z() + RB.velocity._0y0();
+        else RB.velocity = ForwardComponent + NonForwardComponent + DownhillComponent;
     }
-
     //being grappled should allow for infinite movement. aka. no decelleration in input direction
 
     //needs rework to fit all states in one method. (input is current maxspeed, acceleration, decelleration and some control bools)

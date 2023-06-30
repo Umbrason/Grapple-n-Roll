@@ -12,7 +12,7 @@ public class Grapple : MonoBehaviour
 
     [SerializeField] private LineRenderer LR;
     [SerializeField] private Transform GrappleOrigin;
-    
+
     public bool Grappling => !(SJ == null);
 
     void Start()
@@ -33,7 +33,7 @@ public class Grapple : MonoBehaviour
             return;
         }
         if (!Physics.Raycast(CameraTransform.position, CameraTransform.forward, out var hit, maxRange - (CameraTransform.position - transform.position).magnitude)) return;
-        AttachGrapple(hit.point);
+        if (hit.normal.y <= 0) AttachGrapple(hit.point);
     }
 
     void AttachGrapple(Vector3 targetPosition)
