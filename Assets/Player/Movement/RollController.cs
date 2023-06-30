@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-[RequireComponent(typeof(CollisionInfo), typeof(Rigidbody))]
+[RequireComponent(typeof(CollisionInfo), typeof(Rigidbody), typeof(Grapple))]
 public class RollController : MonoBehaviour
 {
     private Rigidbody cached_RB;
@@ -10,22 +10,25 @@ public class RollController : MonoBehaviour
     private CollisionInfo cached_CI;
     private CollisionInfo CI => cached_CI ??= GetComponent<CollisionInfo>();
 
+    private Grapple cached_Grapple;
+    private Grapple Grapple => cached_Grapple ??= GetComponent<Grapple>();
+
     private SphereCollider cached_SphereCollider;
     private SphereCollider SphereCollider => cached_SphereCollider ??= GetComponent<SphereCollider>();
     private Vector2 RawMovementInput = new(0, 0);
 
     [SerializeField] private Transform cameraTransform;
     private Vector3 WorldMovementDirection => (Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0) * RawMovementInput._x0y()).normalized;
-    
+
     [Header("Base Speed"), Tooltip("The base speed of the ball")]
-    [SerializeField] private float speed = 15f;
+    [SerializeField] private float speed = 15f;        
 
     [Header("Grounded")]
     [SerializeField, Tooltip("Airborne decceleration, relative to base speed")] private float Acceleration = 2f;
     [SerializeField, Tooltip("Airborne decceleration, relative to base speed")] private float Decceleration = 3.3333f;
 
     [Header("GroundedAirborn")]
-    [SerializeField, Tooltip("Airborn decceleration, relative to base speed")] private float AirAcceleration = 1;    
+    [SerializeField, Tooltip("Airborn decceleration, relative to base speed")] private float AirAcceleration = 1;
     [SerializeField, Tooltip("Airborn decceleration, relative to base speed")] private float AirDecceleration = 1.3333f;
 
     [Header("Sliding")]
@@ -33,6 +36,9 @@ public class RollController : MonoBehaviour
     [SerializeField, Tooltip("Sliding decceleration, relative to base speed")] private float SlopeDecceleration = 1.3333f;
     [SerializeField, Tooltip("Downhill acceleration, relative to base speed")] private float SlopeDownwardsAcceleration = .3333f;
     [SerializeField, Tooltip("Max downhill speed, relative to base speed")] private float slopeDownwardsSpeed = 1.6666f;
+
+    [Header("Grappling")]
+    [SerializeField, Tooltip("Max speed while grappling, relative to base speed")] private float grapplingSpeed = 2f;
 
 
     void Start()
@@ -86,11 +92,11 @@ public class RollController : MonoBehaviour
 
 
         var uphillFactor = Mathf.Max(0, Vector3.Dot(groundPlaneMovement.normalized, -slopeDownVector));
-        Debug.Log(uphillFactor);
 
         DownhillComponent = Vector3.MoveTowards(DownhillComponent, slopeDownVector * speed * slopeDownwardsSpeed, speed * slopeDownwardsSpeed * SlopeDownwardsAcceleration * Time.fixedDeltaTime);
         //Accelerate movement towards groundPlaneMovement
-        ForwardComponent = Vector3.MoveTowards(ForwardComponent, groundPlaneMovement * speed * (1 - uphillFactor), speed * SlopeAcceleration * Time.fixedDeltaTime);
+        if (ForwardComponent.sqrMagnitude < speed * speed * (1 - uphillFactor))
+            ForwardComponent = Vector3.MoveTowards(ForwardComponent, groundPlaneMovement * speed * (1 - uphillFactor), speed * SlopeAcceleration * Time.fixedDeltaTime);
         //Decellerate movement that doesnt go towards current groundPlaneMovement
         NonForwardComponent = Vector3.MoveTowards(NonForwardComponent, Vector3.zero, speed * SlopeDecceleration * Time.fixedDeltaTime);
 
@@ -103,13 +109,20 @@ public class RollController : MonoBehaviour
         var NonForwardComponent = RB.velocity - ForwardComponent;
 
         //Accelerate movement towards groundPlaneMovement
-        ForwardComponent = Vector3.MoveTowards(ForwardComponent, WorldMovementDirection * speed, speed * AirAcceleration * Time.fixedDeltaTime);
+        if (ForwardComponent.sqrMagnitude < speed * speed)
+            ForwardComponent = Vector3.MoveTowards(ForwardComponent, WorldMovementDirection * speed, speed * AirAcceleration * Time.fixedDeltaTime);
 
         //Decellerate movement that doesnt go towards current groundPlaneMovement
-        NonForwardComponent = Vector3.MoveTowards(NonForwardComponent._x0z(), Vector3.zero, speed * AirDecceleration * Time.fixedDeltaTime);
+        if (!Grapple.Grappling)
+            NonForwardComponent = Vector3.MoveTowards(NonForwardComponent._x0z(), Vector3.zero, speed * AirDecceleration * Time.fixedDeltaTime);
 
-        RB.velocity = ForwardComponent + NonForwardComponent + RB.velocity._0y0();
+        RB.velocity = ForwardComponent + NonForwardComponent._x0z() + RB.velocity._0y0();
     }
+
+    //being grappled should allow for infinite movement. aka. no decelleration in input direction
+
+    //needs rework to fit all states in one method. (input is current maxspeed, acceleration, decelleration and some control bools)
+    //needs to be faster when grappling
 
     //for ariborne/slope movement:
     //check dot product with movement direction

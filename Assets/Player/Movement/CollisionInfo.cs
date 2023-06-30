@@ -42,10 +42,15 @@ public class CollisionInfo : MonoBehaviour
     {
         var collider = other.collider;
         var normals = other.contacts.Select(c => c.normal).ToList();
-        activeCollisions.Add(collider, normals);
+        if (activeCollisions.ContainsKey(collider))
+            activeCollisions[collider].AddRange(normals);
+        else activeCollisions.Add(collider, normals);
         var groundCollisions = ExtractGroundCollisions(collider, normals);
         if (groundCollisions.Count == 0) return;
-        activeGroundCollisions.Add(collider, groundCollisions.Aggregate((a, b) => a + b).normalized);
+        var groundNormal = groundCollisions.Aggregate((a, b) => a + b).normalized;
+        if (activeGroundCollisions.ContainsKey(collider))
+            activeGroundCollisions[collider] = groundNormal;
+        else activeGroundCollisions.Add(collider, groundNormal);
     }
 
 

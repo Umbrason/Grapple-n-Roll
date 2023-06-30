@@ -21,17 +21,18 @@ public class VisualRoll : MonoBehaviour
     private Quaternion AngularVelocity = Quaternion.identity;
     void FixedUpdate()
     {
-        if (CI.Grounded)
-        {
-            var axis = Vector3.Cross(RB.velocity, Vector3.up);
-            var circumference = SphereCollider.radius * Mathf.PI * 2f;
-            var angle = 360f * -RB.velocity.magnitude / circumference;
-            AngularVelocity = Quaternion.AngleAxis(angle * Time.fixedDeltaTime, axis);
-        }
+        /* if (CI.Grounded)
+        { */
+        var hvel = RB.velocity._x0z();
+        var axis = Vector3.Cross(hvel, Vector3.up);
+        var circumference = SphereCollider.radius * Mathf.PI * 2f;
+        var angle = 360f * -hvel.magnitude / circumference / 2f;
+        AngularVelocity = Quaternion.AngleAxis(angle * Time.fixedDeltaTime, axis);
+        RollTarget.transform.rotation = AngularVelocity * RollTarget.transform.rotation;
+        /* }
         else
         {
             AngularVelocity = Quaternion.Lerp(AngularVelocity, Quaternion.identity, AngularDrag * Time.fixedDeltaTime);
-        }
-        RollTarget.transform.rotation = AngularVelocity * RollTarget.transform.rotation;
+        } */
     }
 }

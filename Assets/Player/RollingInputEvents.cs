@@ -21,12 +21,26 @@ public class RollingInputEvents : MonoBehaviour, GameplayInput.IRollingActions
     public static event Action<Vector2> OnRollDirectionChanged;
     public void OnRollDirection(InputAction.CallbackContext context)
     {
-        OnRollDirectionChanged.Invoke(context.ReadValue<Vector2>());
+        OnRollDirectionChanged?.Invoke(context.ReadValue<Vector2>());
     }
 
     public static event Action<Vector2> OnTurnCameraChanged;
     public void OnTurnCamera(InputAction.CallbackContext context)
     {
-        OnTurnCameraChanged.Invoke(context.ReadValue<Vector2>());
+        OnTurnCameraChanged?.Invoke(context.ReadValue<Vector2>());
+    }
+
+    public static event Action<bool> OnJumpInputChanged;
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (context.performed) OnJumpInputChanged?.Invoke(true);
+        if (context.canceled) OnJumpInputChanged?.Invoke(false);
+    }
+
+    public static event Action<bool> OnGrappleInputChanged;
+    public void OnShootGrapple(InputAction.CallbackContext context)
+    {
+        if (context.performed) OnGrappleInputChanged?.Invoke(true);
+        if (context.canceled) OnGrappleInputChanged?.Invoke(false);
     }
 }

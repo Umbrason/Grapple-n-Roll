@@ -44,6 +44,24 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Jump"",
+                    ""type"": ""Button"",
+                    ""id"": ""85da16a7-57d3-4f3d-b01c-73f8d0a70302"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ShootGrapple"",
+                    ""type"": ""Button"",
+                    ""id"": ""5c719fa0-4427-4904-8f57-22fa268700cb"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -108,8 +126,30 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""MouseNKeyboard"",
                     ""action"": ""TurnCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""97c13369-2b96-4ee9-9c6c-fdf78ce2c80d"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""MouseNKeyboard"",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d7e21b2a-73ba-44ba-a546-53b5636a19de"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""MouseNKeyboard"",
+                    ""action"": ""ShootGrapple"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -139,6 +179,8 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
         m_Rolling = asset.FindActionMap("Rolling", throwIfNotFound: true);
         m_Rolling_RollDirection = m_Rolling.FindAction("RollDirection", throwIfNotFound: true);
         m_Rolling_TurnCamera = m_Rolling.FindAction("TurnCamera", throwIfNotFound: true);
+        m_Rolling_Jump = m_Rolling.FindAction("Jump", throwIfNotFound: true);
+        m_Rolling_ShootGrapple = m_Rolling.FindAction("ShootGrapple", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -200,12 +242,16 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
     private IRollingActions m_RollingActionsCallbackInterface;
     private readonly InputAction m_Rolling_RollDirection;
     private readonly InputAction m_Rolling_TurnCamera;
+    private readonly InputAction m_Rolling_Jump;
+    private readonly InputAction m_Rolling_ShootGrapple;
     public struct RollingActions
     {
         private @GameplayInput m_Wrapper;
         public RollingActions(@GameplayInput wrapper) { m_Wrapper = wrapper; }
         public InputAction @RollDirection => m_Wrapper.m_Rolling_RollDirection;
         public InputAction @TurnCamera => m_Wrapper.m_Rolling_TurnCamera;
+        public InputAction @Jump => m_Wrapper.m_Rolling_Jump;
+        public InputAction @ShootGrapple => m_Wrapper.m_Rolling_ShootGrapple;
         public InputActionMap Get() { return m_Wrapper.m_Rolling; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -221,6 +267,12 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
                 @TurnCamera.started -= m_Wrapper.m_RollingActionsCallbackInterface.OnTurnCamera;
                 @TurnCamera.performed -= m_Wrapper.m_RollingActionsCallbackInterface.OnTurnCamera;
                 @TurnCamera.canceled -= m_Wrapper.m_RollingActionsCallbackInterface.OnTurnCamera;
+                @Jump.started -= m_Wrapper.m_RollingActionsCallbackInterface.OnJump;
+                @Jump.performed -= m_Wrapper.m_RollingActionsCallbackInterface.OnJump;
+                @Jump.canceled -= m_Wrapper.m_RollingActionsCallbackInterface.OnJump;
+                @ShootGrapple.started -= m_Wrapper.m_RollingActionsCallbackInterface.OnShootGrapple;
+                @ShootGrapple.performed -= m_Wrapper.m_RollingActionsCallbackInterface.OnShootGrapple;
+                @ShootGrapple.canceled -= m_Wrapper.m_RollingActionsCallbackInterface.OnShootGrapple;
             }
             m_Wrapper.m_RollingActionsCallbackInterface = instance;
             if (instance != null)
@@ -231,6 +283,12 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
                 @TurnCamera.started += instance.OnTurnCamera;
                 @TurnCamera.performed += instance.OnTurnCamera;
                 @TurnCamera.canceled += instance.OnTurnCamera;
+                @Jump.started += instance.OnJump;
+                @Jump.performed += instance.OnJump;
+                @Jump.canceled += instance.OnJump;
+                @ShootGrapple.started += instance.OnShootGrapple;
+                @ShootGrapple.performed += instance.OnShootGrapple;
+                @ShootGrapple.canceled += instance.OnShootGrapple;
             }
         }
     }
@@ -248,5 +306,7 @@ public partial class @GameplayInput : IInputActionCollection2, IDisposable
     {
         void OnRollDirection(InputAction.CallbackContext context);
         void OnTurnCamera(InputAction.CallbackContext context);
+        void OnJump(InputAction.CallbackContext context);
+        void OnShootGrapple(InputAction.CallbackContext context);
     }
 }
