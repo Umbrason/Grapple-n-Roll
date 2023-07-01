@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-public class Grapple : MonoBehaviour
+public class Grapple : MonoBehaviour, IPlayerAbilityWithCooldown
 {
     private SpringJoint SJ;
     [SerializeField] private Transform CameraTransform;
@@ -13,7 +13,14 @@ public class Grapple : MonoBehaviour
     [SerializeField] private LineRenderer LR;
     [SerializeField] private Transform GrappleOrigin;
 
+    public Vector3? GrapplePoint => SJ?.connectedAnchor;
+
     public bool Grappling => !(SJ == null);
+
+    private float GrappleStopTime = float.MinValue;
+    public float CurrentCooldown => Mathf.Clamp(CooldownDuration - (Time.fixedTime - GrappleStopTime), 0, CooldownDuration);
+    [field: SerializeField] public float CooldownDuration { get; private set; } = 3f;
+    public bool InUse => Grappling;
 
     void Start()
     {
@@ -32,12 +39,14 @@ public class Grapple : MonoBehaviour
             ReleaseGrapple();
             return;
         }
+        if (CurrentCooldown > 0) return;
         if (!Physics.Raycast(CameraTransform.position, CameraTransform.forward, out var hit, maxRange - (CameraTransform.position - transform.position).magnitude)) return;
         if (hit.normal.y <= 0) AttachGrapple(hit.point);
     }
 
     void AttachGrapple(Vector3 targetPosition)
     {
+        GrappleStopTime = float.MaxValue;
         var initialDistance = (transform.position - targetPosition).magnitude;
         SJ = gameObject.AddComponent<SpringJoint>();
         SJ.spring = 1000f;
@@ -65,6 +74,7 @@ public class Grapple : MonoBehaviour
     void ReleaseGrapple()
     {
         if (SJ == null) return;
+        GrappleStopTime = Time.fixedTime;
         LR.positionCount = 0;
         Destroy(SJ);
         SJ = null;
