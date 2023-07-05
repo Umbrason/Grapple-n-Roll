@@ -794,11 +794,11 @@ PlayerSettings:
     m_VersionName: 
   apiCompatibilityLevel: 6
   activeInputHandler: 2
-  cloudProjectId: 
+  cloudProjectId: 87ef45b2-934f-4ddd-862c-decee3e75717
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
-  organizationId: 
+  projectName: D1
+  organizationId: fabiokolligs
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 

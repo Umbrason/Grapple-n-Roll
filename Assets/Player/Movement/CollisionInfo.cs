@@ -19,10 +19,14 @@ public class CollisionInfo : MonoBehaviour
     public Vector3 ContactNormal => cached_ContactNormal ??= activeGroundCollisions.Values.Aggregate((a, b) => a + b).normalized;
     void FixedUpdate() => cached_ContactNormal = null;
 
-    private float cached_dotThreshold = Mathf.Cos(Mathf.PI * .2f);
+    const float SLOPE_ANGLE_DEGREES = 26;
+    const float SLOPE_ANGLE_PIs = SLOPE_ANGLE_DEGREES / 180f;
+    
+
+    private float cached_dotThreshold = Mathf.Cos(Mathf.PI * SLOPE_ANGLE_PIs);
     private float DotThreshold => cached_dotThreshold;
 
-    private float cached_MaxSlopeRads = Mathf.PI * .2f;
+    private float cached_MaxSlopeRads = Mathf.PI * SLOPE_ANGLE_PIs;
     public float MaxSlopeRads
     {
         get => cached_MaxSlopeRads; set
@@ -76,12 +80,12 @@ public class CollisionInfo : MonoBehaviour
 
     private bool IsGround(Collider c, Vector3 normal)
     {
-        return normal.y >= .001;
+        return normal.y >= .1;
     }
 
     private bool IsWall(Collider c, Vector3 normal)
     {
-        return normal.y < 0.001; //Mathf.Abs(Vector3.Dot(Vector3.up, normal)) <= DotThreshold;
+        return normal.y < 0.1; //Mathf.Abs(Vector3.Dot(Vector3.up, normal)) <= DotThreshold;
     }
 
     public Vector3 CollideXZVelocity(Vector3 velocity)
