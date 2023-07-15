@@ -5,6 +5,7 @@
     "com.unity.inputsystem": "1.4.3",
     "com.unity.render-pipelines.universal": "12.1.7",
     "com.unity.services.leaderboards": "file:C:/Users/Fabio/Downloads/com.unity.services.leaderboards-1.0.0-exp.1.tgz",
+    "com.unity.services.authentication": "2.5.0",
     "com.unity.splines": "2.3.0",
     "com.unity.textmeshpro": "3.0.6",
     "com.unity.timeline": "1.6.4",
