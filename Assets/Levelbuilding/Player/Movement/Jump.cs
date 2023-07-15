@@ -34,7 +34,7 @@ public class Jump : MonoBehaviour
         if (jumpCount <= jumpsPerformed + 1) return;
         if (CoyoteTime < Time.fixedTime - lastGroundTime) jumpsPerformed++;
         var velocity = Mathf.Sqrt(2 * -Physics.gravity.y * JumpHeight);
-        RB.velocity = RB.velocity._x0z() + Vector3.up * velocity;
+        RB.velocity = RB.velocity._x0z() + Vector3.up * Mathf.Max(velocity, RB.velocity.y);
         lastGroundTime = float.MinValue;
     }
 

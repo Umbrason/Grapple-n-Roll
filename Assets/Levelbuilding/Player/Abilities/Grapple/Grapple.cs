@@ -13,6 +13,8 @@ public class Grapple : MonoBehaviour, IPlayerAbilityWithCooldown
     [SerializeField] private LineRenderer LR;
     [SerializeField] private Transform GrappleOrigin;
 
+    [SerializeField] private AudioSource GrappleAttachSFX;
+
     public Vector3? GrapplePoint => SJ?.connectedAnchor ?? ((Time.time - failedGrappleTime) < grappleFailVisualizaionDuration ? failedGrappleWorldPos : null);
     public bool Grappling => !(SJ == null);
 
@@ -74,6 +76,9 @@ public class Grapple : MonoBehaviour, IPlayerAbilityWithCooldown
         SJ.maxDistance = Mathf.Max(minRange, initialDistance);
         LR.positionCount = 2;
         LR.SetPositions(new Vector3[] { targetPosition, GrappleOrigin.position });
+
+        GrappleAttachSFX.transform.position = targetPosition;
+        GrappleAttachSFX.Play();
     }
 
     void FixedUpdate()
