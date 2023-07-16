@@ -2,10 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Splines;
 
-[ExecuteAlways]
 public class CoinPath : MonoBehaviour
 {
-#if UNITY_EDITOR
+
     [SerializeField] private SplineContainer splineContainer;
     [SerializeField, HideInInspector] private List<GameObject> Coins;
     [SerializeField] private float Spacing = 1f;
@@ -55,5 +54,5 @@ public class CoinPath : MonoBehaviour
             coin.transform.localPosition = position;
         }
     }
-#endif
+
 }

@@ -7,7 +7,8 @@ public class Spring : MonoBehaviour
     [SerializeField] private float cooldownTime = 3f;
 
     [SerializeField] SkinnedMeshRenderer mr;
-
+    [SerializeField] AudioClip[] SpringAudioClips;
+    [SerializeField] AudioSource SpringSFX;
     [SerializeField] float springHeight;
 
     void OnTriggerEnter(Collider c)
@@ -16,6 +17,8 @@ public class Spring : MonoBehaviour
         var velocity = Mathf.Sqrt(2 * -Physics.gravity.y * springHeight);
         c.attachedRigidbody.velocity = c.attachedRigidbody.velocity._x0z() + velocity * Vector3.up;
         TriggerTime = Time.time;
+        var clip = SpringAudioClips[Random.Range(0, SpringAudioClips.Length)];        
+        SpringSFX.PlayOneShot(clip);
     }
 
 

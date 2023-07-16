@@ -15,7 +15,7 @@ public class CameraClipStopRaycast : MonoBehaviour
     void Start()
     {
         currentLocalpos = transform.localPosition;
-        noPlayerLayerMask = ~LayerMask.GetMask("Player");
+        noPlayerLayerMask = ~LayerMask.GetMask("Player", "NoPlayerCollision");
     }
     void LateUpdate()
     {

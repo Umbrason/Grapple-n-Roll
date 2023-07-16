@@ -22,15 +22,13 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Shader Graphs_CrystalParallax
   m_Shader: {fileID: -6465566751694194690, guid: c1ec77db6f616c040b61484db272b8dc, type: 3}
-  m_ValidKeywords:
-  - _SPECULAR_SETUP
+  m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -80,6 +78,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _Smoothness: 0.5
     - _SrcBlend: 1
     - _Surface: 0
     - _WorkflowMode: 0

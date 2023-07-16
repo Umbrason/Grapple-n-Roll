@@ -38,7 +38,7 @@ public class RollController : MonoBehaviour
     [SerializeField, Tooltip("Max downhill speed, relative to base speed")] private float slopeDownwardsSpeed = 1.6666f;
 
     [Header("Grappling")]
-    [SerializeField, Tooltip("Max speed while grappling, relative to base speed")] private float grapplingSpeed = 2f;
+    [SerializeField, Tooltip("Max speed while grappling, relative to base speed")] private float grapplingSpeed = 1.5f;
 
 
     void Start()
@@ -54,7 +54,7 @@ public class RollController : MonoBehaviour
     void FixedUpdate()
     {
         RB.useGravity = !CI.FlatGround;
-        DoMovemement(Grapple.Grappling ? speed * 1.5f : speed);
+        DoMovemement(Grapple.Grappling ? speed * grapplingSpeed : speed);
     }
 
     [SerializeField] private float MaxMomentumKeepingTurnAngle = 5f;

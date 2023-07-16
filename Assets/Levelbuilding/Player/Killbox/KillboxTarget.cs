@@ -6,6 +6,8 @@ public class KillboxTarget : MonoBehaviour
     [SerializeField] private CollisionInfo info;
     [SerializeField] private Rigidbody RB;
 
+    public int ResetCounter { get; private set; }
+
     private readonly List<Vector3> savePosition = new();
     void FixedUpdate()
     {
@@ -18,5 +20,6 @@ public class KillboxTarget : MonoBehaviour
         RB.position = savePosition[0];
         RB.velocity = Vector3.zero;
         RB.useGravity = false;
+        ResetCounter++;
     }
 }
