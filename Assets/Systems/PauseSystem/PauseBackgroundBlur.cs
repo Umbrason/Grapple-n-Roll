@@ -21,6 +21,7 @@ public class PauseBackgroundBlur : MonoBehaviour
     {
         PauseManager.OnPause -= Pause;
         PauseManager.OnResume -= Resume;
+        DOFVolume.enabled = false;
     }
 
     private void Pause()

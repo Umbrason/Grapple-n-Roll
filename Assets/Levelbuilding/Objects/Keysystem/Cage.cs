@@ -27,7 +27,7 @@ public class Cage : MonoBehaviour
 
         UnlockSFX.Play();
         yield return new WaitForSeconds(UnlockSFX.clip.length * 2f);
-        Bars.SetActive(false);
+        Bars.transform.position = Vector3.down * 1000f;
         FracturedBars.SetActive(true);
         foreach (var rb in FracturedBars.GetComponentsInChildren<Rigidbody>())
             rb.AddExplosionForce(5f, transform.position, 10f, .2f, ForceMode.VelocityChange);

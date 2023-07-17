@@ -9,9 +9,21 @@ public class LeaderboardUI : MonoBehaviour
     [SerializeField] private LeaderboardEntry entryPrefab;
     [SerializeField] private Transform ContentContainer;
 
-    public void OnFinishLevel(float time)
+    public enum Mode
     {
-        gameObject.SetActive(true);
+        BEST = 0, SURROUNDING = 1
+    }
+
+    private Mode mode = Mode.BEST;
+    public void SetMode(Mode mode)
+    {
+        this.mode = mode;
+        StartCoroutine(FetchScoresAndShow());
+    }
+
+
+    public void OnEnable()
+    {
         var children = Enumerable.Range(0, ContentContainer.childCount).Select(ContentContainer.GetChild).ToArray();
         foreach (var child in children) Destroy(child.gameObject);
         StartCoroutine(FetchScoresAndShow());
@@ -20,11 +32,13 @@ public class LeaderboardUI : MonoBehaviour
     private IEnumerator FetchScoresAndShow()
     {
         yield return new WaitForSeconds(.05f);
-        var task = Leaderboard.GetScoresAroundPlayer(10);
+        var task = mode == Mode.SURROUNDING ? Leaderboard.GetScoresAroundPlayer(10) : Leaderboard.GetBestScores(10, 0);
         yield return new WaitUntil(() => task.IsCompleted);
 
 
-        foreach (var score in task.Result.Results)
+        var children = Enumerable.Range(0, ContentContainer.childCount).Select(ContentContainer.GetChild).ToArray();
+        foreach (var child in children) Destroy(child.gameObject);
+        foreach (var score in task.Result)
         {
             var isUser = score.PlayerId == AuthenticationService.Instance.PlayerId;
             var entry = Instantiate(entryPrefab, ContentContainer);
@@ -32,14 +46,4 @@ public class LeaderboardUI : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        LevelTimer.OnFinish += OnFinishLevel;
-        gameObject.SetActive(false);
-    }
-
-    void Destroy()
-    {
-        LevelTimer.OnFinish -= OnFinishLevel;
-    }
 }

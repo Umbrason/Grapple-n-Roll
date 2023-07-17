@@ -12,6 +12,7 @@ public class PauseOnFinish : MonoBehaviour
     void OnDestroy()
     {
         LevelTimer.OnFinish -= Pause;
+        Resume();
     }
 
     private Guid pauseHandle;

@@ -7,6 +7,8 @@ public static class PauseManager
     public static event Action OnPause;
     public static event Action OnResume;
 
+    public static bool Paused => pauseHandles.Count > 0;
+
     public static Guid Pause()
     {
         var pauseHandle = Guid.NewGuid();

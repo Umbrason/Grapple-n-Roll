@@ -11,8 +11,8 @@ public static class Authentication
     {
         await UnityServices.InitializeAsync();
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        Debug.Log(AuthenticationService.Instance.PlayerId);
-        Debug.Log("Authenticating");
+        PlayerOptions.OnNameChanged += ChangePlayerName;
+
     }
 
     static async void ChangePlayerName(string playerName) => await AuthenticationService.Instance.UpdatePlayerNameAsync(playerName);

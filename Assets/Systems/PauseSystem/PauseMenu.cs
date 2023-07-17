@@ -4,15 +4,29 @@ using UnityEngine;
 
 public class PauseMenu : MonoBehaviour
 {
-    [SerializeField] private GameObject PauseMenuCanvas;    
+    [SerializeField] private GameObject PauseMenuCanvas;
     private Guid pauseHandle;
-    private bool paused;
+    private bool selfPaused;
     public void TogglePause()
     {
-        paused = !paused;
-        PauseMenuCanvas?.SetActive(paused);
-        if (paused) pauseHandle = PauseManager.Pause();
-        if (!paused) PauseManager.Resume(pauseHandle);
+        if (!selfPaused && PauseManager.Paused) return;
+        selfPaused = !selfPaused;
+        PauseMenuCanvas?.SetActive(selfPaused);
+        if (selfPaused) pauseHandle = PauseManager.Pause();
+        if (!selfPaused) PauseManager.Resume(pauseHandle);
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            TogglePause();
+    }
+
+
+
+    void OnDestroy()
+    {
+        if (selfPaused) PauseManager.Resume(pauseHandle);
     }
 
 }

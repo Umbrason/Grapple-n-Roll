@@ -15,6 +15,7 @@ public class PauseTimeFreeze : MonoBehaviour
     {
         PauseManager.OnPause -= Pause;
         PauseManager.OnResume -= Resume;
+        Time.timeScale = 1;
     }
 
     private void Pause()

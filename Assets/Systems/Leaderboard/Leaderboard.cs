@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Unity.Services.Leaderboards;
@@ -7,21 +8,29 @@ using UnityEngine;
 
 public static class Leaderboard
 {
-    private const string leaderboardIdPrefix = "Times-";
-    public static async void AddScore(float time, int levelID = 0)
+    private const string leaderboardId = "Times-0";
+    public static async void AddScore(float time)
     {
-        var leaderboardId = $"{leaderboardIdPrefix}{levelID}";
+        if(Godmode.hasBeenUsed) return; //no cheating!
         var playerEntry = await LeaderboardsService.Instance
         .AddPlayerScoreAsync(leaderboardId, time);
-        Debug.Log(JsonConvert.SerializeObject(playerEntry));
     }
 
-    public static async Task<LeaderboardScores> GetScoresAroundPlayer(int rangeLimit, int levelID = 0)
+    public static async Task<List<Unity.Services.Leaderboards.Models.LeaderboardEntry>> GetScoresAroundPlayer(int rangeLimit)
     {
-        var leaderboardId = $"{leaderboardIdPrefix}{levelID}";
-        return await LeaderboardsService.Instance.GetPlayerRangeAsync(
+        var scores = await LeaderboardsService.Instance.GetPlayerRangeAsync(
             leaderboardId,
             new GetPlayerRangeOptions { RangeLimit = rangeLimit }
         );
+        return scores.Results;
+    }
+
+    public static async Task<List<Unity.Services.Leaderboards.Models.LeaderboardEntry>> GetBestScores(int rangeLimit, int offset)
+    {
+        var scores = await LeaderboardsService.Instance.GetScoresAsync(
+            leaderboardId,
+            new GetScoresOptions { Limit = rangeLimit, Offset = offset }
+        );
+        return scores.Results;
     }
 }

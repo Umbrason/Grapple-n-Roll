@@ -10,7 +10,7 @@ public static class LevelTimer
     private static float StopTime;
     public static bool Running => m_Running;
     private static bool m_Running = false;
-    public static float CurrentTime => Time.fixedTime - StartTime;
+    public static float CurrentTime => Time.fixedTime - StartTime;    
 
     public static void StartTimer()
     {

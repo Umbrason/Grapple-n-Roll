@@ -14,7 +14,7 @@ public class TimePublisher : MonoBehaviour
     }
 
     private void PublishTimeIfPB(float time)
-    {
-        Leaderboard.AddScore(time, 0);
+    {        
+        Leaderboard.AddScore(time);
     }
 }

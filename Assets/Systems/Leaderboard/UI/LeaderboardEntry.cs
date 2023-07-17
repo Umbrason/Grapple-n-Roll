@@ -21,7 +21,12 @@ public class LeaderboardEntry : MonoBehaviour
                          : darkBGColor;
         Position.text = $"{position}.";
         Name.text = name;
-        Time.text = time.ToString("0.00");
+        
+        var minutes = Mathf.Floor(time / 60f);
+        var seconds = time % 60;
+        Time.text = minutes > 0 ? 
+                 $"{minutes.ToString()}m {(seconds.ToString("0."))}s" 
+               : $"{(seconds.ToString("0.00"))}s";
 
     }
 }

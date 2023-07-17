@@ -9,9 +9,9 @@ public class KeychainHUD : MonoBehaviour
 
 
     private Image[] icons;
-    void Start()
+    void Update()
     {
-        if (icons != null) foreach (var icon in icons) Destroy(icon.gameObject);
+        if (icons != null || Cage.Instance == null) return;
         icons = new Image[Cage.Instance.LockCount];
         for (int i = 0; i < icons.Length; i++)
             icons[i] = Instantiate(keyIconTemplate, transform).transform.GetChild(0).GetComponent<Image>();
@@ -29,7 +29,6 @@ public class KeychainHUD : MonoBehaviour
 
     void UpdateIcons(int enabledCount)
     {
-        Debug.Log(enabledCount);
         for (int i = 0; i < enabledCount; i++)
             icons[i].enabled = true;
     }
