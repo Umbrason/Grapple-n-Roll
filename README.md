@@ -1,20 +1,20 @@
 # Grapple'n'Roll
-![1](https://github.com/Umbrason/Grapple-n-Roll/assets/45980080/c6f17df4-6f45-480f-bced-85feece18bb7)<br>
+![1](https://github.com/Umbrason/Grapple-n-Roll/assets/45980080/813bec76-5172-456d-9dc1-41c236cc2c5b)<br>
 Grapple'n'Roll was made for the Gamedev curse at RUB university.
 
 # Grappling hook
-![2](https://github.com/Umbrason/Grapple-n-Roll/assets/45980080/6f52caba-7fed-4a6a-bb4b-76f2f6b6d890)<br>
+![2](https://github.com/Umbrason/Grapple-n-Roll/assets/45980080/bf1c60ee-2302-4b7a-a843-d68b22f22c80)<br>
 Swing into action using your grappling-hook to build up higher speeds!
 
 # Roll Fast
-![3](https://github.com/Umbrason/Grapple-n-Roll/assets/45980080/4f69b29d-8b0c-4463-a7c0-3aa58daa2763)<br>
+![3](https://github.com/Umbrason/Grapple-n-Roll/assets/45980080/60dcfd70-0ddc-4150-a7d1-38bca73f2c4f)<br>
 Your goal is to reach the green exit portal and enter it.
 
-![4](https://github.com/Umbrason/Grapple-n-Roll/assets/45980080/bc14ed34-aed8-4bf2-b7f9-b5d882fd0cc9)<br>
+![4](https://github.com/Umbrason/Grapple-n-Roll/assets/45980080/f9682172-ac29-4867-b235-b8d39a4fec40)<br>
 But to unlock the goal you need to collect two keys first.
 
-# Compete Online
-![image](https://github.com/Umbrason/Grapple-n-Roll/assets/45980080/98daee7b-411f-4910-97fb-370f413cc4bd)<br>
+# Online Leaderboard
+![image](https://github.com/Umbrason/Grapple-n-Roll/assets/45980080/ed646631-98ab-4223-b7fc-4ec96d86ca59)<br>
 Compete with other players using the online leaderboard!
 
 # CONTROLS
