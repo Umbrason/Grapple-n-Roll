@@ -20,6 +20,12 @@ public static class LevelTimer
         OnStart?.Invoke(StartTime);
     }
 
+    public static void Cancel()
+    {
+        StartTime = 0f;
+        m_Running = false;
+    }
+
     public static void StopTimer()
     {
         if (!m_Running) return;
