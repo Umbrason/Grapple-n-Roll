@@ -44,6 +44,7 @@ public class Godmode : MonoBehaviour, GameplayInput.IGodmodeActions
         RC.enabled = !gmEnabled;
         RB.isKinematic = gmEnabled;                
         hasBeenUsed = true;
+        LevelTimer.Cancel();
     }
 
     void FixedUpdate()
