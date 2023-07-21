@@ -38,8 +38,23 @@ public static class PlayerOptions
         }
     }
 
+    private static FullScreenMode? cached_FullScreenMode;
+    public static FullScreenMode FullScreenMode
+    {
+        get => cached_FullScreenMode ??= (FullScreenMode)PlayerPrefs.GetInt(nameof(FullScreenMode), (int)FullScreenMode.MaximizedWindow);
+        set
+        {
+            PlayerPrefs.SetInt(nameof(FullScreenMode), (int?)(cached_FullScreenMode = value) ?? (int)FullScreenMode.MaximizedWindow);
+            Screen.fullScreenMode = value;
+            OnFullScreenModeChanged?.Invoke(value);
+        }
+    }
+
+    
+
     public static Action<string> OnNameChanged;
     public static Action<float> OnVolumeChanged;
     public static Action<float> OnSensitivityChanged;
+    public static Action<FullScreenMode> OnFullScreenModeChanged;
 
 }

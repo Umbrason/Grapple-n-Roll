@@ -8,6 +8,7 @@ public class TimerUI : MonoBehaviour
     void Start()
     {
         LevelTimer.OnStart += Show;
+        LevelTimer.OnCancel += Hide;
         LevelTimer.OnFinish += Hide;
         gameObject.SetActive(false);
     }
@@ -15,6 +16,7 @@ public class TimerUI : MonoBehaviour
     void OnDestroy()
     {
         LevelTimer.OnStart -= Show;
+        LevelTimer.OnCancel -= Hide;
         LevelTimer.OnFinish -= Hide;
     }
 

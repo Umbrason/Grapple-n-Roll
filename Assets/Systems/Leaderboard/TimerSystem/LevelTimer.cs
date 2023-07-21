@@ -4,17 +4,18 @@ using UnityEngine;
 public static class LevelTimer
 {
     public static event Action<float> OnStart;
+    public static event Action<float> OnCancel;
     public static event Action<float> OnFinish;
 
     private static float StartTime;
     private static float StopTime;
     public static bool Running => m_Running;
     private static bool m_Running = false;
-    public static float CurrentTime => Time.fixedTime - StartTime;    
+    public static float CurrentTime => Time.fixedTime - StartTime;
 
     public static void StartTimer()
     {
-        if (m_Running) return;
+        if (m_Running || Godmode.hasBeenUsed) return;
         StartTime = Time.fixedTime;
         m_Running = true;
         OnStart?.Invoke(StartTime);
@@ -24,6 +25,7 @@ public static class LevelTimer
     {
         StartTime = 0f;
         m_Running = false;
+        OnCancel?.Invoke(CurrentTime);
     }
 
     public static void StopTimer()
