@@ -1707,6 +1707,10 @@ MonoBehaviour:
   nameInput: {fileID: 658152799195134859}
   sensitivitySlider: {fileID: 658152798530298203}
   volumeSlider: {fileID: 658152798363414357}
+  windowModeToggles:
+  - {fileID: 6373769026926346264}
+  - {fileID: 8937857765423845080}
+  - {fileID: 4278381146489646465}
 --- !u!114 &6221616549606457186
 MonoBehaviour:
   m_ObjectHideFlags: 0
