@@ -24,7 +24,7 @@ public class OptionsUI : MonoBehaviour
             windowModeToggles[i].SetIsOnWithoutNotify(modes[i] == PlayerOptions.FullScreenMode);
             windowModeToggles[i].onValueChanged.RemoveAllListeners();
             var windowMode = modes[i];
-            windowModeToggles[i].onValueChanged.AddListener(value => ChangeWindowMode(windowMode));
+            windowModeToggles[i].onValueChanged.AddListener(value => { if (value) ChangeWindowMode(windowMode); });
         }
     }
 
